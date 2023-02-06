@@ -23,10 +23,22 @@ export default function Dashboard() {
   const { apiKey } = useContext(ApiKeyContext);
   const { engine } = useContext(EngineContext);
   const [searchKey, setSearchKey] = useState<string>("id");
+  const [searchInputText, setSearchInputText] = useState<string>();
   const [searchText, setSearchText] = useState<string>();
   const [page, setPage] = useState<number>(0);
   const [searchKeys, setSearchKeys] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+
+  // Debounce typing. Only set new `searchText` if `searchInputText` doesn't change for `DEBOUNCE_MILLIS`
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchText(searchInputText);
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchInputText]);
 
   const search = useMemo(
     () =>
@@ -96,8 +108,8 @@ export default function Dashboard() {
           <SearchBar
             searchKey={searchKey}
             setSearchKey={setSearchKey}
-            searchText={searchText ?? ""}
-            setSearchText={setSearchText}
+            searchText={searchInputText ?? ""}
+            setSearchText={setSearchInputText}
             searchKeys={searchKeys}
             inputId={searchInputId}
           />

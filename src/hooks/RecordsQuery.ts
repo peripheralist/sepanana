@@ -36,10 +36,13 @@ export function useRecordsQuery({
               },
             }
           : { match_all: {} },
-        size: pageSize ?? 10000, // TODO: Update this before we hit 10k projects
+        size: pageSize ?? 10000,
         page: page ?? 0,
       })
-      .then((res) => setRecords(res.data));
+      .then((res) => setRecords(res.data))
+      .catch((res) => {
+        // Maybe should do something. Fail silently for now while only use case is Dashboard
+      });
   }, [engine, search, apiKey, page, pageSize]);
 
   return records;
