@@ -1,8 +1,17 @@
+import { ApiKeyContext } from "contexts/ApiKeyContext";
+import { EngineContext } from "contexts/EngineContext";
 import { useRecordsQuery } from "hooks/RecordsQuery";
 import { restrictedKeys } from "models/sepana";
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { deleteAllRecords } from "utils/api";
+import Button from "./Button";
 
-import Header from "./Header";
 import PageControls from "./PageControls";
 import Record from "./Record";
 import SearchBar from "./SearchBar";
@@ -11,10 +20,13 @@ const pageSize = 20;
 const searchInputId = "search";
 
 export default function Dashboard() {
+  const { apiKey } = useContext(ApiKeyContext);
+  const { engine } = useContext(EngineContext);
   const [searchKey, setSearchKey] = useState<string>("id");
   const [searchText, setSearchText] = useState<string>();
   const [page, setPage] = useState<number>(0);
   const [searchKeys, setSearchKeys] = useState<string[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
 
   const search = useMemo(
     () =>
@@ -63,20 +75,53 @@ export default function Dashboard() {
 
   const total = query?.hits.total.value;
 
-  console.log("asdf");
+  const deleteAll = useCallback(async () => {
+    if (!apiKey || !engine) return;
+
+    await deleteAllRecords({ apiKey, engineId: engine?.engine_id });
+
+    setConfirmDelete(false);
+  }, [apiKey, engine]);
 
   return (
     <div style={{ padding: 20 }}>
-      {searchKeys.length > 0 && (
-        <SearchBar
-          searchKey={searchKey}
-          setSearchKey={setSearchKey}
-          searchText={searchText ?? ""}
-          setSearchText={setSearchText}
-          searchKeys={searchKeys}
-          inputId={searchInputId}
-        />
-      )}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
+        {searchKeys.length > 0 && (
+          <SearchBar
+            searchKey={searchKey}
+            setSearchKey={setSearchKey}
+            searchText={searchText ?? ""}
+            setSearchText={setSearchText}
+            searchKeys={searchKeys}
+            inputId={searchInputId}
+          />
+        )}
+        {confirmDelete ? (
+          <div style={{ display: "flex", alignItems: "baseline" }}>
+            Delete all records in this engine?{" "}
+            <Button kind="danger" onClick={deleteAll}>
+              Delete all
+            </Button>
+            <Button kind="secondary" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="small"
+            kind="secondaryDanger"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete all
+          </Button>
+        )}
+      </div>
       <br />
       <br />
       {searchKeys.length > 0 && (

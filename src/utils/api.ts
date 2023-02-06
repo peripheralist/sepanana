@@ -72,6 +72,25 @@ export async function deleteRecord({
   });
 }
 
+export async function deleteAllRecords({
+  apiKey,
+  engineId,
+}: {
+  apiKey: string;
+  engineId: string;
+}) {
+  return sepanaAxios({ apiKey }).delete(SEPANA_ENDPOINTS.delete, {
+    data: {
+      engine_id: engineId,
+      delete_query: {
+        query: {
+          match_all: {},
+        },
+      },
+    },
+  });
+}
+
 export async function getJobs({
   apiKey,
   jobIds,

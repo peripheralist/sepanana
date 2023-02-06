@@ -67,7 +67,7 @@ export default function Record({ record }: { record: SepanaRecord }) {
   async function _deleteRecord(recordId: string) {
     if (!engine || !apiKey) return;
 
-    const res = await deleteRecord({
+    await deleteRecord({
       apiKey,
       engineId: engine.engine_id,
       recordId,
