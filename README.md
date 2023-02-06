@@ -19,6 +19,8 @@ Chill UI for interacting with a [Sepana](https://sepana.io/) engine. Not for mob
 To run the development server:
 
 ```bash
+yarn install
+
 yarn dev
 ```
 
