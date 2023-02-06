@@ -1,6 +1,8 @@
 ## Sepanana
 
-No-frills UI for interacting with a [Sepana](https://sepana.io/) engine.
+Chill UI for interacting with a [Sepana](https://sepana.io/) engine. Not for mobile.
+
+<img width="1468" alt="image" src="https://user-images.githubusercontent.com/79433522/217098305-485aba43-2e51-4cdc-9f06-9625eb8eb9c4.png">
 
 ## Usage
 
