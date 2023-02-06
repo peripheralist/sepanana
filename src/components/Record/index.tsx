@@ -103,7 +103,7 @@ export default function Record({ record }: { record: SepanaRecord }) {
                 updateRecord(editableObject);
               }}
             >
-              Save
+              Update
             </Button>
             <Button
               kind="secondary"
@@ -112,6 +112,16 @@ export default function Record({ record }: { record: SepanaRecord }) {
                 setError(undefined);
               }}
             >
+              Cancel
+            </Button>
+          </div>
+        ) : confirmDelete ? (
+          <div style={{ display: "flex", alignItems: "baseline" }}>
+            You sure?
+            <Button kind="danger" onClick={() => _deleteRecord(record._id)}>
+              DELETE RECORD
+            </Button>
+            <Button kind="secondary" onClick={() => setConfirmDelete(false)}>
               Cancel
             </Button>
           </div>
@@ -124,24 +134,13 @@ export default function Record({ record }: { record: SepanaRecord }) {
             >
               Edit
             </Button>
-            {confirmDelete ? (
-              <Button
-                size="small"
-                condition="danger"
-                onClick={() => _deleteRecord(record._id)}
-              >
-                DELETE
-              </Button>
-            ) : (
-              <Button
-                size="small"
-                kind="secondary"
-                condition="danger"
-                onClick={() => setConfirmDelete(true)}
-              >
-                Delete
-              </Button>
-            )}
+            <Button
+              size="small"
+              kind="secondaryDanger"
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete
+            </Button>
           </div>
         )}
       </div>
