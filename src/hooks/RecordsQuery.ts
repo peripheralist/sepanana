@@ -17,7 +17,8 @@ export function useRecordsQuery({
   const { engine } = useContext(EngineContext);
   const { apiKey } = useContext(ApiKeyContext);
 
-  const [records, setRecords] = useState<RecordsQueryResponse>();
+  const [records, setRecords] =
+    useState<Partial<RecordsQueryResponse & { error: true }>>();
 
   useEffect(() => {
     if (!engine || !apiKey) {
@@ -40,9 +41,7 @@ export function useRecordsQuery({
         page: page ?? 0,
       })
       .then((res) => setRecords(res.data))
-      .catch((res) => {
-        // Maybe should do something. Fail silently for now while only use case is Dashboard
-      });
+      .catch(() => setRecords({ error: true }));
   }, [engine, search, apiKey, page, pageSize]);
 
   return records;

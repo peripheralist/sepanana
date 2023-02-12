@@ -1,7 +1,7 @@
 export type SepanaRecord<
   ID extends string = string,
   T extends { id: ID; _id: ID } = { id: ID; _id: ID }
-> = T;
+> = T & { [k: string]: string | number | object | null | undefined };
 
 export type RecordsQueryResponse = {
   hits: {

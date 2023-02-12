@@ -1,6 +1,7 @@
 import { ApiKeyContext } from "contexts/ApiKeyContext";
 import { EngineContext } from "contexts/EngineContext";
 import { useRecordsQuery } from "hooks/RecordsQuery";
+import { SearchKey } from "models/search";
 import { restrictedKeys } from "models/sepana";
 import React, {
   useCallback,
@@ -22,12 +23,13 @@ const searchInputId = "search";
 export default function Dashboard() {
   const { apiKey } = useContext(ApiKeyContext);
   const { engine } = useContext(EngineContext);
-  const [searchKey, setSearchKey] = useState<string>("id");
+  const [searchKey, setSearchKey] = useState<SearchKey>();
   const [searchInputText, setSearchInputText] = useState<string>();
   const [searchText, setSearchText] = useState<string>();
   const [page, setPage] = useState<number>(0);
-  const [searchKeys, setSearchKeys] = useState<string[]>([]);
+  const [searchKeys, setSearchKeys] = useState<SearchKey[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
 
   // Debounce typing. Only set new `searchText` if `searchInputText` doesn't change for `DEBOUNCE_MILLIS`
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function Dashboard() {
     () =>
       searchKey && searchText
         ? {
-            key: searchKey,
+            key: searchKey.key,
             value: searchText,
           }
         : undefined,
@@ -64,28 +66,49 @@ export default function Dashboard() {
 
   const query = useRecordsQuery({ search, page, pageSize });
 
-  const records = query?.hits.hits;
+  const records = query?.hits?.hits;
 
   useEffect(() => {
-    if (!records) {
+    if (query?.error && searchKey) {
+      setError(
+        `Can't search ${searchKey.key} (${
+          searchKey.type ?? "unknown type"
+        }) with "${searchText}"`
+      );
+    } else {
+      setError(undefined);
+    }
+  }, [query, records, searchKey, searchText]);
+
+  useEffect(() => {
+    if (!query) {
       setSearchKeys([]);
       return;
     }
 
-    if (records.length) {
+    if (records?.length) {
       setSearchKeys(
-        Object.entries(records[0]._source)
+        Object.entries(records?.[0]._source)
           .filter(
             ([k, v]) =>
               !restrictedKeys.includes(k) &&
               (v === null || typeof v !== "object")
           )
-          .map(([k, v]) => k)
+          .map(([k, v]) => ({
+            key: k,
+            type: v === null ? undefined : typeof v,
+          }))
       );
     }
-  }, [records]);
+  }, [records, query]);
 
-  const total = query?.hits.total.value;
+  useEffect(() => {
+    if (!searchKey || !searchKeys.some((k) => k.key !== searchKey.key)) {
+      setSearchKey(searchKeys.length ? searchKeys[0] : undefined);
+    }
+  }, [searchKeys, searchKey]);
+
+  const total = query?.hits?.total.value;
 
   const deleteAll = useCallback(async () => {
     if (!apiKey || !engine) return;
@@ -114,7 +137,7 @@ export default function Dashboard() {
             inputId={searchInputId}
           />
         )}
-        {confirmDelete ? (
+        {query || !searchKeys.length ? null : confirmDelete ? (
           <div style={{ display: "flex", alignItems: "baseline" }}>
             Delete all records in this engine?{" "}
             <Button kind="danger" onClick={deleteAll}>
@@ -134,6 +157,19 @@ export default function Dashboard() {
           </Button>
         )}
       </div>
+      {error && (
+        <div
+          style={{
+            display: "inline-block",
+            color: "#F67429",
+            background: "#F6742916",
+            padding: 10,
+            marginTop: 20,
+          }}
+        >
+          {error}
+        </div>
+      )}
       <br />
       <br />
       {searchKeys.length > 0 && (

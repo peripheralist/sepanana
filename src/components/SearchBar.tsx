@@ -1,4 +1,5 @@
 import { EngineContext } from "contexts/EngineContext";
+import { SearchKey } from "models/search";
 import React, { useContext } from "react";
 
 export default function SearchBar({
@@ -9,14 +10,17 @@ export default function SearchBar({
   setSearchText,
   inputId,
 }: {
-  searchKey: string;
-  searchKeys: string[];
-  setSearchKey: (key: string) => void;
+  searchKey: SearchKey | undefined;
+  searchKeys: SearchKey[] | undefined;
+  setSearchKey: (key: SearchKey) => void;
   searchText: string;
   setSearchText: (text: string) => void;
   inputId?: string;
 }) {
   const { engine } = useContext(EngineContext);
+
+  if (!searchKeys || !searchKey) return null;
+
   return (
     <div>
       <h2>Search {engine?.engine_name}</h2>
@@ -24,12 +28,12 @@ export default function SearchBar({
       <div style={{ display: "flex", alignItems: "baseline" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
           <select
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
+            value={JSON.stringify(searchKey)}
+            onChange={(e) => setSearchKey(JSON.parse(e.target.value))}
           >
             {searchKeys.map((k) => (
-              <option key={k} value={k}>
-                {k}
+              <option key={k.key} value={JSON.stringify(k)}>
+                {k.key} ({k.type ?? "unknown type"})
               </option>
             ))}
           </select>
@@ -41,7 +45,7 @@ export default function SearchBar({
             value={searchText}
             type="search"
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder={`Search ${searchKey}`}
+            placeholder={`Search ${searchKey.key}`}
           />
         </div>
       </div>
