@@ -62,7 +62,7 @@ export default function Dashboard() {
 
   // When search key changes
   useEffect(() => {
-    setSearchText(undefined);
+    setSearchInputText(undefined);
     document.getElementById(searchInputId)?.focus();
   }, [searchKey]);
 
