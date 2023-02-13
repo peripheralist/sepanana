@@ -23,7 +23,7 @@ export default function Record({ record }: { record: SepanaRecord }) {
       Object.entries(record).reduce(
         (acc, [k, v]) => ({
           ...acc,
-          ...(restrictedKeys.includes(k) ? {} : { [k]: v }),
+          ...(restrictedKeys.has(k) ? {} : { [k]: v }),
         }),
         {} as SepanaRecord
       )

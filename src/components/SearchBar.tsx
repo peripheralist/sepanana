@@ -19,36 +19,39 @@ export default function SearchBar({
 }) {
   const { engine } = useContext(EngineContext);
 
-  if (!searchKeys || !searchKey) return null;
-
   return (
     <div>
-      <h2>Search {engine?.engine_name}</h2>
+      <h2>
+        {searchKeys?.length ? "Search " : null}
+        {engine?.engine_name}
+      </h2>
       <br />
-      <div style={{ display: "flex", alignItems: "baseline" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-          <select
-            value={JSON.stringify(searchKey)}
-            onChange={(e) => setSearchKey(JSON.parse(e.target.value))}
-          >
-            {searchKeys.map((k) => (
-              <option key={k.key} value={JSON.stringify(k)}>
-                {k.key} ({k.type ?? "unknown type"})
-              </option>
-            ))}
-          </select>
-          :
-          <input
-            id={inputId}
-            style={{ width: 400 }}
-            autoFocus
-            value={searchText}
-            type="search"
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder={`Search ${searchKey.key}`}
-          />
+      {searchKeys?.length && searchKey ? (
+        <div style={{ display: "flex", alignItems: "baseline" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+            <select
+              value={JSON.stringify(searchKey)}
+              onChange={(e) => setSearchKey(JSON.parse(e.target.value))}
+            >
+              {searchKeys.map((k) => (
+                <option key={k.key} value={JSON.stringify(k)}>
+                  {k.key} ({k.type ?? "unknown type"})
+                </option>
+              ))}
+            </select>
+            :
+            <input
+              id={inputId}
+              style={{ width: 400 }}
+              autoFocus
+              value={searchText}
+              type="search"
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder={`Search ${searchKey.key}`}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

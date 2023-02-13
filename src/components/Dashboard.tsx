@@ -1,6 +1,7 @@
 import { ApiKeyContext } from "contexts/ApiKeyContext";
 import { EngineContext } from "contexts/EngineContext";
 import { useRecordsQuery } from "hooks/RecordsQuery";
+import { useSearchKeys } from "hooks/SearchKeys";
 import { SearchKey } from "models/search";
 import { restrictedKeys } from "models/sepana";
 import React, {
@@ -27,7 +28,6 @@ export default function Dashboard() {
   const [searchInputText, setSearchInputText] = useState<string>();
   const [searchText, setSearchText] = useState<string>();
   const [page, setPage] = useState<number>(0);
-  const [searchKeys, setSearchKeys] = useState<SearchKey[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -41,6 +41,8 @@ export default function Dashboard() {
       clearTimeout(timer);
     };
   }, [searchInputText]);
+
+  const searchKeys = useSearchKeys();
 
   const search = useMemo(
     () =>
@@ -81,28 +83,6 @@ export default function Dashboard() {
   }, [query, records, searchKey, searchText]);
 
   useEffect(() => {
-    if (!query) {
-      setSearchKeys([]);
-      return;
-    }
-
-    if (records?.length) {
-      setSearchKeys(
-        Object.entries(records?.[0]._source)
-          .filter(
-            ([k, v]) =>
-              !restrictedKeys.includes(k) &&
-              (v === null || typeof v !== "object")
-          )
-          .map(([k, v]) => ({
-            key: k,
-            type: v === null ? undefined : typeof v,
-          }))
-      );
-    }
-  }, [records, query]);
-
-  useEffect(() => {
     if (!searchKey || !searchKeys.some((k) => k.key !== searchKey.key)) {
       setSearchKey(searchKeys.length ? searchKeys[0] : undefined);
     }
@@ -127,17 +107,15 @@ export default function Dashboard() {
           alignItems: "flex-end",
         }}
       >
-        {searchKeys.length > 0 && (
-          <SearchBar
-            searchKey={searchKey}
-            setSearchKey={setSearchKey}
-            searchText={searchInputText ?? ""}
-            setSearchText={setSearchInputText}
-            searchKeys={searchKeys}
-            inputId={searchInputId}
-          />
-        )}
-        {query || !searchKeys.length ? null : confirmDelete ? (
+        <SearchBar
+          searchKey={searchKey}
+          setSearchKey={setSearchKey}
+          searchText={searchInputText ?? ""}
+          setSearchText={setSearchInputText}
+          searchKeys={searchKeys}
+          inputId={searchInputId}
+        />
+        {search || !searchKeys.length ? null : confirmDelete ? (
           <div style={{ display: "flex", alignItems: "baseline" }}>
             Delete all records in this engine?{" "}
             <Button kind="danger" onClick={deleteAll}>
@@ -172,34 +150,32 @@ export default function Dashboard() {
       )}
       <br />
       <br />
-      {searchKeys.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
-          <h4>
-            {total
-              ? `${page * pageSize + 1}-${Math.min(
-                  (page + 1) * pageSize,
-                  total ?? 0
-                )}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
+      >
+        <h4>
+          {total
+            ? `${page * pageSize + 1}-${Math.min(
+                (page + 1) * pageSize,
+                total ?? 0
+              )}
             of `
-              : ""}
-            {total ?? "--"} records
-          </h4>
-          {total && total > pageSize ? (
-            <PageControls
-              page={page}
-              pageSize={pageSize}
-              setPage={setPage}
-              recordsCount={total}
-            />
-          ) : null}
-        </div>
-      )}
+            : ""}
+          {total ?? "--"} records
+        </h4>
+        {total && total > pageSize ? (
+          <PageControls
+            page={page}
+            pageSize={pageSize}
+            setPage={setPage}
+            recordsCount={total}
+          />
+        ) : null}
+      </div>
       <br />
       <div
         style={{

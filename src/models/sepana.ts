@@ -33,4 +33,7 @@ export type EnginesQueryResponse = {
   };
 };
 
-export const restrictedKeys = ["sepana_job_id", "sepana_indexing_datetime"];
+export const restrictedKeys = new Set([
+  "sepana_job_id",
+  "sepana_indexing_datetime",
+]);

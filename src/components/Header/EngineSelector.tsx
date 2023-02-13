@@ -9,8 +9,6 @@ export default function EngineSelector() {
   const engines = useEnginesQuery(apiKey);
 
   useEffect(() => {
-    console.log("engines", engines);
-
     if (!setEngine) return;
 
     if (!engines) {
@@ -20,8 +18,6 @@ export default function EngineSelector() {
 
     setEngine(engines[0]);
   }, [engines, setEngine]);
-
-  console.log("eng", engine);
 
   return (
     <div style={{ display: "flex", alignItems: "baseline" }}>
