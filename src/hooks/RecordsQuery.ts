@@ -29,11 +29,11 @@ export function useRecordsQuery({
       return;
     }
 
+    const _hits: Hits = [];
+
+    const maxPageSize = 100;
+
     const query = async (page: number) => {
-      const maxPageSize = 100;
-
-      const _hits: Hits = [];
-
       const { data } = await sepanaAxios({
         apiKey,
       }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
