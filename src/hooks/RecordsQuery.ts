@@ -17,32 +17,56 @@ export function useRecordsQuery({
   const { engine } = useContext(EngineContext);
   const { apiKey } = useContext(ApiKeyContext);
 
-  const [records, setRecords] =
-    useState<Partial<RecordsQueryResponse & { error: true }>>();
+  const [records, setRecords] = useState<RecordsQueryResponse["hits"]["hits"]>(
+    []
+  );
+  const [error, setError] = useState<boolean>();
 
   useEffect(() => {
     if (!engine || !apiKey) {
-      setRecords(undefined);
+      setRecords([]);
       return;
     }
 
-    sepanaAxios({ apiKey })
-      .post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
-        engine_ids: [engine.engine_id],
-        query: search
-          ? {
-              query_string: {
-                query: search.value,
-                fields: [search.key],
-              },
-            }
-          : { match_all: {} },
-        size: pageSize ?? 10000,
-        page: page ?? 0,
-      })
-      .then((res) => setRecords(res.data))
-      .catch(() => setRecords({ error: true }));
+    const queryAll = async () => {
+      const maxPageSize = 100;
+
+      const _records: RecordsQueryResponse["hits"]["hits"] = [];
+
+      const query = async (page: number) => {
+        const { data } = await sepanaAxios({
+          apiKey,
+        }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
+          engine_ids: [process.env.SEPANA_ENGINE_ID],
+          query: search
+            ? {
+                query_string: {
+                  query: search.value,
+                  fields: [search.key],
+                },
+              }
+            : { match_all: {} },
+          size: maxPageSize, // TODO: Update this before we hit 10k projects
+          page,
+        });
+
+        _records.push(...data.hits.hits);
+
+        if (data.hits.total.value === maxPageSize) await query(page + 1);
+      };
+
+      try {
+        await query(0);
+      } catch (_) {
+        setRecords([]);
+        setError(true);
+      }
+
+      setRecords(_records);
+    };
+
+    queryAll();
   }, [engine, search, apiKey, page, pageSize]);
 
-  return records;
+  return { records, error, total: records?.length };
 }

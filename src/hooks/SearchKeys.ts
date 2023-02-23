@@ -1,16 +1,14 @@
 import { SearchKey } from "models/search";
 import { restrictedKeys } from "models/sepana";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { useRecordsQuery } from "./RecordsQuery";
 
 export function useSearchKeys() {
-  const query = useRecordsQuery({});
-
-  const records = query?.hits?.hits;
+  const { records, total } = useRecordsQuery({});
 
   return useMemo(() => {
-    if (!records?.length) return [];
+    if (!total) return [];
 
     let _searchKeys: Record<string, SearchKey> = {};
 
@@ -29,5 +27,5 @@ export function useSearchKeys() {
     );
 
     return Object.values(_searchKeys);
-  }, [records]);
+  }, [records, total]);
 }

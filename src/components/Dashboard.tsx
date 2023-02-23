@@ -3,7 +3,6 @@ import { EngineContext } from "contexts/EngineContext";
 import { useRecordsQuery } from "hooks/RecordsQuery";
 import { useSearchKeys } from "hooks/SearchKeys";
 import { SearchKey } from "models/search";
-import { restrictedKeys } from "models/sepana";
 import React, {
   useCallback,
   useContext,
@@ -12,8 +11,8 @@ import React, {
   useState,
 } from "react";
 import { deleteAllRecords } from "utils/api";
-import Button from "./Button";
 
+import Button from "./Button";
 import PageControls from "./PageControls";
 import Record from "./Record";
 import SearchBar from "./SearchBar";
@@ -66,12 +65,18 @@ export default function Dashboard() {
     document.getElementById(searchInputId)?.focus();
   }, [searchKey]);
 
-  const query = useRecordsQuery({ search, page, pageSize });
-
-  const records = query?.hits?.hits;
+  const {
+    records,
+    error: queryError,
+    total,
+  } = useRecordsQuery({
+    search,
+    page,
+    pageSize,
+  });
 
   useEffect(() => {
-    if (query?.error && searchKey) {
+    if (queryError && searchKey) {
       setError(
         `Can't search ${searchKey.key} (${
           searchKey.type ?? "unknown type"
@@ -80,15 +85,13 @@ export default function Dashboard() {
     } else {
       setError(undefined);
     }
-  }, [query, records, searchKey, searchText]);
+  }, [queryError, records, searchKey, searchText]);
 
   useEffect(() => {
     if (!searchKey || !searchKeys.some((k) => k.key !== searchKey.key)) {
       setSearchKey(searchKeys.length ? searchKeys[0] : undefined);
     }
   }, [searchKeys, searchKey]);
-
-  const total = query?.hits?.total.value;
 
   const deleteAll = useCallback(async () => {
     if (!apiKey || !engine) return;
