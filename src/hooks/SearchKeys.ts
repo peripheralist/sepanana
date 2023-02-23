@@ -5,15 +5,15 @@ import { useMemo } from "react";
 import { useRecordsQuery } from "./RecordsQuery";
 
 export function useSearchKeys() {
-  const { records, total } = useRecordsQuery({});
+  const { hits, total } = useRecordsQuery({});
 
   return useMemo(() => {
     if (!total) return [];
 
     let _searchKeys: Record<string, SearchKey> = {};
 
-    records.forEach((r) =>
-      Object.entries(r._source).forEach(([key, value]) => {
+    hits.forEach((h) =>
+      Object.entries(h._source).forEach(([key, value]) => {
         if (
           !restrictedKeys.has(key) &&
           (!_searchKeys[key] || _searchKeys[key].type === undefined)
@@ -27,5 +27,5 @@ export function useSearchKeys() {
     );
 
     return Object.values(_searchKeys);
-  }, [records, total]);
+  }, [hits, total]);
 }

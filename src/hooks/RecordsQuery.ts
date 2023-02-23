@@ -5,6 +5,8 @@ import { RecordsQueryResponse } from "models/sepana";
 import { useContext, useEffect, useState } from "react";
 import { SEPANA_ENDPOINTS, sepanaAxios } from "utils/http";
 
+type Hits = RecordsQueryResponse["hits"]["hits"];
+
 export function useRecordsQuery({
   search,
   page,
@@ -17,21 +19,20 @@ export function useRecordsQuery({
   const { engine } = useContext(EngineContext);
   const { apiKey } = useContext(ApiKeyContext);
 
-  const [records, setRecords] = useState<RecordsQueryResponse["hits"]["hits"]>(
-    []
-  );
+  const [hits, setHits] = useState<Hits>([]);
   const [error, setError] = useState<boolean>();
 
   useEffect(() => {
     if (!engine || !apiKey) {
-      setRecords([]);
+      setHits([]);
+      setError(false);
       return;
     }
 
     const query = async (page: number) => {
       const maxPageSize = 100;
 
-      const _records: RecordsQueryResponse["hits"]["hits"] = [];
+      const _hits: Hits = [];
 
       const { data } = await sepanaAxios({
         apiKey,
@@ -49,18 +50,19 @@ export function useRecordsQuery({
         page,
       });
 
-      _records.push(...data.hits.hits);
+      _hits.push(...data.hits.hits);
 
       if (data.hits.total.value === maxPageSize) await query(page + 1);
 
-      return _records;
+      return _hits;
     };
 
     const queryAll = async () => {
       try {
-        setRecords(await query(0));
+        setHits(await query(0));
+        setError(false);
       } catch (_) {
-        setRecords([]);
+        setHits([]);
         setError(true);
       }
     };
@@ -68,5 +70,5 @@ export function useRecordsQuery({
     queryAll();
   }, [engine, search, apiKey, page, pageSize]);
 
-  return { records, error, total: records?.length };
+  return { hits, error, total: hits.length };
 }

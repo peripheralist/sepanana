@@ -66,7 +66,7 @@ export default function Dashboard() {
   }, [searchKey]);
 
   const {
-    records,
+    hits,
     error: queryError,
     total,
   } = useRecordsQuery({
@@ -85,7 +85,7 @@ export default function Dashboard() {
     } else {
       setError(undefined);
     }
-  }, [queryError, records, searchKey, searchText]);
+  }, [queryError, hits, searchKey, searchText]);
 
   useEffect(() => {
     if (!searchKey || !searchKeys.some((k) => k.key !== searchKey.key)) {
@@ -188,7 +188,7 @@ export default function Dashboard() {
           paddingBottom: 30,
         }}
       >
-        {records?.map((r) => (
+        {hits?.map((r) => (
           <Record key={r._id} record={r._source} />
         ))}
       </div>
