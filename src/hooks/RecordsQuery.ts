@@ -36,7 +36,7 @@ export function useRecordsQuery({
       const { data } = await sepanaAxios({
         apiKey,
       }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
-        engine_ids: [process.env.SEPANA_ENGINE_ID],
+        engine_ids: [engine.engine_id],
         query: search
           ? {
               query_string: {
