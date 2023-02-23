@@ -52,7 +52,7 @@ export function useRecordsQuery({
 
       _hits.push(...data.hits.hits);
 
-      if (data.hits.total.value === maxPageSize) await query(page + 1);
+      if (data.hits.hits.length === maxPageSize) await query(page + 1);
 
       return _hits;
     };
