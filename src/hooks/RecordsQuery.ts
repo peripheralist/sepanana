@@ -28,41 +28,41 @@ export function useRecordsQuery({
       return;
     }
 
-    const queryAll = async () => {
+    const query = async (page: number) => {
       const maxPageSize = 100;
 
       const _records: RecordsQueryResponse["hits"]["hits"] = [];
 
-      const query = async (page: number) => {
-        const { data } = await sepanaAxios({
-          apiKey,
-        }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
-          engine_ids: [process.env.SEPANA_ENGINE_ID],
-          query: search
-            ? {
-                query_string: {
-                  query: search.value,
-                  fields: [search.key],
-                },
-              }
-            : { match_all: {} },
-          size: maxPageSize, // TODO: Update this before we hit 10k projects
-          page,
-        });
+      const { data } = await sepanaAxios({
+        apiKey,
+      }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
+        engine_ids: [process.env.SEPANA_ENGINE_ID],
+        query: search
+          ? {
+              query_string: {
+                query: search.value,
+                fields: [search.key],
+              },
+            }
+          : { match_all: {} },
+        size: maxPageSize,
+        page,
+      });
 
-        _records.push(...data.hits.hits);
+      _records.push(...data.hits.hits);
 
-        if (data.hits.total.value === maxPageSize) await query(page + 1);
-      };
+      if (data.hits.total.value === maxPageSize) await query(page + 1);
 
+      return _records;
+    };
+
+    const queryAll = async () => {
       try {
-        await query(0);
+        setRecords(await query(0));
       } catch (_) {
         setRecords([]);
         setError(true);
       }
-
-      setRecords(_records);
     };
 
     queryAll();
