@@ -69,6 +69,7 @@ export default function Dashboard() {
     hits,
     error: queryError,
     total,
+    loading,
   } = useRecordsQuery({
     search,
     page,
@@ -138,6 +139,7 @@ export default function Dashboard() {
           </Button>
         )}
       </div>
+
       {error && (
         <div
           style={{
@@ -153,32 +155,36 @@ export default function Dashboard() {
       )}
       <br />
       <br />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-        }}
-      >
-        <h4>
-          {total
-            ? `${page * pageSize + 1}-${Math.min(
-                (page + 1) * pageSize,
-                total ?? 0
-              )}
+      {loading ? (
+        "Loading..."
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <h4>
+            {total
+              ? `${page * pageSize + 1}-${Math.min(
+                  (page + 1) * pageSize,
+                  total ?? 0
+                )}
             of `
-            : ""}
-          {total ?? "--"} records
-        </h4>
-        {total && total > pageSize ? (
-          <PageControls
-            page={page}
-            pageSize={pageSize}
-            setPage={setPage}
-            recordsCount={total}
-          />
-        ) : null}
-      </div>
+              : ""}
+            {total ?? "--"} records
+          </h4>
+          {total && total > pageSize ? (
+            <PageControls
+              page={page}
+              pageSize={pageSize}
+              setPage={setPage}
+              recordsCount={total}
+            />
+          ) : null}
+        </div>
+      )}
       <br />
       <div
         style={{
