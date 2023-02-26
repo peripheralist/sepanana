@@ -20,6 +20,7 @@ export function useRecordsQuery({
   const { apiKey } = useContext(ApiKeyContext);
 
   const [loading, setLoading] = useState<boolean>();
+  const [total, setTotal] = useState<number>();
   const [hits, setHits] = useState<Hits>([]);
   const [error, setError] = useState<boolean>();
 
@@ -30,12 +31,7 @@ export function useRecordsQuery({
       return;
     }
 
-    let total: number | undefined;
-    const _hits: Hits = [];
-
-    const maxPageSize = 100;
-
-    const query = async (page: number, initialQuery?: boolean) => {
+    const query = async () => {
       const { data } = await sepanaAxios({
         apiKey,
       }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
@@ -48,40 +44,19 @@ export function useRecordsQuery({
               },
             }
           : { match_all: {} },
-        size: maxPageSize,
+        size: pageSize,
         page,
       });
 
-      if (total === undefined) total = data.hits.total.value;
-
-      if (total) {
-        if ((page + 1) * maxPageSize > total) {
-          // Sepana gives us a full pageSize of results in every query without a pointer, so we use the total to manually check that we don't adding too many hits
-          _hits.push(...data.hits.hits.slice(0, total % maxPageSize));
-        } else {
-          _hits.push(...data.hits.hits);
-
-          if (initialQuery) {
-            // After getting total in initial query, we concurrently await all subsequent queries to speed things up
-            let promises = [];
-
-            for (let i = 1; i < total / maxPageSize; i++) {
-              promises.push(query(i));
-            }
-
-            await Promise.all(promises);
-          }
-        }
-      }
-
-      return _hits.sort((a, b) => (a._id < b._id ? -1 : 1));
+      setTotal(data.hits.total.value);
+      setHits(data.hits.hits);
     };
 
     const queryAll = async () => {
       setLoading(true);
 
       try {
-        setHits(await query(0, true));
+        await query();
         setError(false);
       } catch (_) {
         setHits([]);
@@ -94,5 +69,5 @@ export function useRecordsQuery({
     queryAll();
   }, [engine, search, apiKey, page, pageSize]);
 
-  return { hits, error, total: hits.length, loading };
+  return { hits, error, total, loading };
 }

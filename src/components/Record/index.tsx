@@ -146,7 +146,9 @@ export default function Record({ record }: { record: SepanaRecord }) {
       </div>
 
       {editableObject && (
-        <div>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: ".25rem" }}
+        >
           {Object.entries(editableObject).map(([k, v]) => (
             <div key={k} style={{ display: "flex", alignItems: "baseline" }}>
               <span
