@@ -29,6 +29,7 @@ export function useRecordsQuery({
       return;
     }
 
+    let total = 0;
     const _hits: Hits = [];
 
     const maxPageSize = 100;
@@ -50,9 +51,17 @@ export function useRecordsQuery({
         page,
       });
 
-      _hits.push(...data.hits.hits);
+      if (!total) total = data.hits.total.value;
 
-      if (data.hits.hits.length === maxPageSize) await query(page + 1);
+      if (total) {
+        if ((page + 1) * maxPageSize > total) {
+          _hits.push(...data.hits.hits.slice(0, total % maxPageSize));
+        } else {
+          _hits.push(...data.hits.hits);
+
+          await query(page + 1);
+        }
+      }
 
       return _hits;
     };
