@@ -45,7 +45,7 @@ export function useRecordsQuery({
             }
           : { match_all: {} },
         size: pageSize,
-        page,
+        from: page,
       });
 
       setTotal(data.hits.total.value);
