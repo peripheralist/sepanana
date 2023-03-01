@@ -13,7 +13,7 @@ export function useSearchKeys() {
     let _searchKeys: Record<string, SearchKey> = {};
 
     hits.forEach((h) =>
-      Object.entries(h._source).forEach(([key, value]) => {
+      Object.entries(h._source).sort(([a], [b]) => a < b ? -1 : 1).forEach(([key, value]) => {
         if (
           !restrictedKeys.has(key) &&
           (!_searchKeys[key] || _searchKeys[key].type === undefined)
