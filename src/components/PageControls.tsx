@@ -12,12 +12,14 @@ export default function PageControls({
   page: number;
   setPage: (page: number) => void;
 }) {
+  const padButtonCount = 2;
+
   return useMemo(() => {
     if (!recordsCount) return null;
 
     const elems: JSX.Element[] = [];
 
-    if (page > 0) {
+    if (page > 1) {
       elems.push(
         <Button
           size="small"
@@ -30,28 +32,28 @@ export default function PageControls({
       );
     }
 
-    if (page > 2) {
+    if (page > 1 + padButtonCount) {
       elems.push(
         <Button
           size="small"
           kind="secondary"
           key={1}
-          onClick={() => setPage(0)}
+          onClick={() => setPage(1)}
         >
           1
         </Button>
       );
-      elems.push(<span key={2}>...</span>);
+      elems.push(<span key={8}>...</span>);
     }
 
-    for (let i = 1; i >= 0; i--) {
+    for (let i = padButtonCount; i >= 1; i--) {
       if (page > i) {
         elems.push(
           <Button
             size="small"
             kind="secondary"
-            key={3 + i}
-            onClick={() => setPage(page - (i + 1))}
+            key={"leading" + i}
+            onClick={() => setPage(page - i)}
           >
             {page - i}
           </Button>
@@ -65,22 +67,22 @@ export default function PageControls({
         kind="primary"
         disabled
         style={{ fontWeight: 700 }}
-        key={5}
+        key={"current"}
       >
-        {page + 1}
+        {page}
       </Button>
     );
 
-    for (let i = 1; i <= 2; i++) {
-      if (recordsCount > pageSize * (page + i)) {
+    for (let i = 1; i <= padButtonCount; i++) {
+      if (recordsCount > pageSize * page) {
         elems.push(
           <Button
             size="small"
             kind="secondary"
-            key={5 + i}
+            key={"trailing" + i}
             onClick={() => setPage(page + i)}
           >
-            {page + 1 + i}
+            {page + i}
           </Button>
         );
       }

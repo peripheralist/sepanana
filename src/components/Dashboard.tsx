@@ -26,7 +26,7 @@ export default function Dashboard() {
   const [searchKey, setSearchKey] = useState<SearchKey>();
   const [searchInputText, setSearchInputText] = useState<string>();
   const [searchText, setSearchText] = useState<string>();
-  const [page, setPage] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -56,7 +56,7 @@ export default function Dashboard() {
 
   // When search text changes
   useEffect(() => {
-    setPage(0);
+    setPage(1);
   }, [searchText]);
 
   // When search key changes

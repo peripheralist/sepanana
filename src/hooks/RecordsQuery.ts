@@ -36,6 +36,7 @@ export function useRecordsQuery({
         apiKey,
       }).post<RecordsQueryResponse>(SEPANA_ENDPOINTS.search, {
         engine_ids: [engine.engine_id],
+        sort: ['_id'],
         query: search
           ? {
               query_string: {
@@ -45,7 +46,7 @@ export function useRecordsQuery({
             }
           : { match_all: {} },
         size: pageSize,
-        from: page,
+        page,
       });
 
       setTotal(data.hits.total.value);
