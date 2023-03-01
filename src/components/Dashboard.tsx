@@ -167,8 +167,8 @@ export default function Dashboard() {
         >
           <h4>
             {total
-              ? `${page * pageSize + 1}-${Math.min(
-                  (page + 1) * pageSize,
+              ? `${(page - 1) * pageSize + 1}-${Math.min(
+                  page * pageSize,
                   total ?? 0
                 )}
             of `

@@ -22,8 +22,9 @@ export default function Header() {
     >
       <ApiKeyEntry />
       <EngineSelector />
-      <div style={{ flex: 1 }}></div>
-      <Jobs />
+      <div style={{ display: "flex", flex: 1, justifyContent: "right" }}>
+        <Jobs />
+      </div>
     </div>
   );
 }

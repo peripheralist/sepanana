@@ -25,12 +25,12 @@ export function Jobs() {
   if (!hasJobs) return null;
 
   return (
-    <div>
+    <>
       <div
         style={{
           display: "flex",
           cursor: "crosshair",
-          zIndex: 10,
+          whiteSpace: "nowrap",
         }}
         role="button"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -81,6 +81,6 @@ export function Jobs() {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

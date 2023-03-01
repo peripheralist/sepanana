@@ -35,8 +35,8 @@ export default function ApiKeyEntry() {
 
   return (
     <div style={{ display: "flex", alignItems: "baseline" }}>
-      <div>API Key:</div>
-      <div style={{ position: "relative", width: 280 }}>
+      <div style={{ whiteSpace: "nowrap" }}>API Key:</div>
+      <div style={{ position: "relative", minWidth: 280 }}>
         <input
           style={{ width: "100%" }}
           type="password"
